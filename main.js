@@ -2,7 +2,7 @@
 	var serialPort = require("serialport");
 	var SerialPort = serialPort.SerialPort;
 
-	var server = require('child_process').execFile('server.js');
+	var server = require('child_process').spawn('node', ['server.js']);
 
 	//console.log(process.argv);
 	if(process.argv.length > 2) {
