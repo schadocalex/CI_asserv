@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<script src="node_modules/socket.io-client/socket.io.js"></script>
+	<script type="text/javascript" src="canvasjs.min.js"></script>
+	<script type="text/javascript">
+
+	var socket;
+
+	window.onload = function () {
+
+		var graphs = []; // dataPoints
+		var chart = null;
+		var max = 4;
+		var dataLength = 50;
+		var datas = [];
+		var names = [
+			"Graphique 1",
+			"Graphique 2",
+			"Graphique 3",
+			"Graphique 4"
+		];
+
+		for(var i = 0; i < max; i++) {
+			graphs.push([]);
+			// for(var j = 0; j < dataLength; j++) {
+			// 	graphs[i].push({
+			// 		x: j-dataLength,
+			// 		y: dataLength-j
+			// 	});
+			// }
+			datas.push({
+				type: "line",
+				showInLegend: true,
+				legendText: names[i],
+				dataPoints: graphs[i]
+			});
+		}
+		chart = new CanvasJS.Chart("chartContainer",{
+			title :{
+				text: "Real time graph"
+			},			
+			data: datas
+		});
+
+		console.log(graphs);
+
+		var count_x = 0;
+		function updateCharts(val) {
+			for(var i = 0; i < val.length && i < max; i++) {
+				graphs[i].push({
+					x: count_x,
+					y: val[i]
+				});
+				if (graphs[i].length > dataLength)
+				{
+					graphs[i].shift();				
+				}
+			}
+			
+			chart.render();
+			count_x++;
+		};
+
+		// generates first set of dataPoints
+		// updateCharts([0,0,0,0]); 
+
+		// update chart after specified time. 
+		// setInterval(function(){updateChart()}, updateInterval); 
+
+		var client = io("127.0.0.1:3000");
+		client.on('update', function(data) {
+			// console.log(data);
+			updateCharts(data);
+		});
+
+		document.getElementById('send_PID_V').onclick = function() {
+			var data = [
+				parseFloat(document.getElementById('data_P_V').value),
+				parseFloat(document.getElementById('data_I_V').value),
+				parseFloat(document.getElementById('data_D_V').value)
+			];
+			// console.log(data);
+			client.emit('PID_motorV', data);
+		};
+		document.getElementById('send_PID_P').onclick = function() {
+			var data = [
+				parseFloat(document.getElementById('data_P_P').value),
+				parseFloat(document.getElementById('data_I_P').value),
+				parseFloat(document.getElementById('data_D_P').value)
+			];
+			// console.log(data);
+			client.emit('PID_motorP', data);
+		};
+		document.getElementById('send_consigne_V').onclick = function() {
+			var data = parseFloat(document.getElementById('data_consigne_V').value);
+			// console.log(data);
+			client.emit('consigne_V', data);
+		};
+		document.getElementById('send_consigne_P').onclick = function() {
+			var data = parseFloat(document.getElementById('data_consigne_P').value);
+			// console.log(data);
+			client.emit('consigne_P', data);
+		};
+	}
+	</script>
+</head>
+<body>
+	<div id="chartContainer" style="height:500px; width:100%;"></div>
+	P <input id="data_P_V" type="text" value="200" />
+	I <input id="data_I_V" type="text" value="0.005" />
+	D <input id="data_D_V" type="text" value="0" />
+	<input id="send_PID_V" type="submit" value="Envoyer PID motorV" />
+	<br />
+	P <input id="data_P_P" type="text" value="28.5" />
+	I <input id="data_I_P" type="text" value="0.35" />
+	D <input id="data_D_P" type="text" value="0" />
+	<input id="send_PID_P" type="submit" value="Envoyer PID motorP" />
+	<br />
+	Consigne <input id="data_consigne_V" type="text" value="2" /> tr/s
+	<input id="send_consigne_V" type="submit" value="Envoyer consigne motorV" />
+	<br />
+	Consigne <input id="data_consigne_P" type="text" value="3" /> mm
+	<input id="send_consigne_P" type="submit" value="Envoyer consigne  motorP" />
+</body>
+</html>
