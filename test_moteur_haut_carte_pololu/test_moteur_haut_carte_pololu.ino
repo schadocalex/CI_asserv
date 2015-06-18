@@ -13,7 +13,7 @@ SimpleTimer timer; // Timer pour échantillonnage
 // Moteur V = Moteur asservi en vitesse
 #define MOTORV_PWM 6
 #define MOTORV_EN 50
-float consigne_motorV = 3; // en tr/s
+float consigne_motorV = 4; // en tr/s
 unsigned long time_old_tick = 0, time_new_tick = 0, time_old2_tick = 0; // Pour mesurer la vitesse du moteur
 const float coeff_motorV = 465/2; // counts per revolution 48*9.68; // nombre de ticks par tour * reducteur
 long tick_motorV = coeff_motorV; // Initialisation à 1 tr, il ne fera qu'un tour au démarrage au lieu de 2
@@ -61,6 +61,7 @@ void setup() {
   // Interruptions
     // Moteur V
   attachInterrupt(2, interruption_motorV, CHANGE); // Interruption sur tick de la codeuse (interruption 2 = pin 21 Arduino Mega)
+  //attachInterrupt(3, interruption_motorV, CHANGE); // Interruption sur tick de la codeuse (interruption 2 = pin 21 Arduino Mega)
     // Moteur P
   pinMode(MOTORP_PIN_A, INPUT);
   pinMode(MOTORP_PIN_B, INPUT);
