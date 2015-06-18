@@ -1,7 +1,15 @@
 (function() {
 	var serialPort = require("serialport");
 	var SerialPort = serialPort.SerialPort;
-	var sp = new SerialPort("/dev/ttyACM0", {
+
+	var server = require('child_process').execFile('server.js');
+
+	//console.log(process.argv);
+	if(process.argv.length > 2) {
+		var port = process.argv[2];
+		console.log('Arduino : '+port);
+	
+	var sp = new SerialPort(port, {
 		baudrate: 57600,
 		parser: serialPort.parsers.readline('\n')
 	});
@@ -11,7 +19,7 @@
 	var server = require('socket.io')();
 	server.on('connection', function(socket){});
 	server.listen(3000);
-	console.log("http://127.0.0.1/dev/CI_asserv/index.html");
+	console.log("webclient : http://localhost:4000/index.html");
 
 	function parseData(s) {
 		var type = s.charAt(0);
@@ -72,5 +80,13 @@
 	// setInterval(function() {
 	// 	server.emit('update', [10,20,30,40]);
 	// }, 1000/50);
-
+	} else {
+		console.log('Entrez un port serial en paramètres');
+		serialPort.list(function(err, ports) {
+			ports.forEach(function(port) {
+				console.log(' - '+port.comName);
+			});
+			process.exit();
+		});
+	}
 })();

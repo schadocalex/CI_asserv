@@ -8,13 +8,16 @@ app.all('*', function(req, res, next){
 	next();
 });
 
-app.use('/', express.static(path.join(__dirname, "..")));
+app.use(express.static('./'));
 
 app.all('*', function(req, res){ //index
-	res.redirect('/webclient/webclient.html');
+	//res.redirect('index.html');
 });
 
-var server = app.listen(80, function() {
+var server = app.listen(4000, function() {
 	console.log('Listening on port %d', server.address().port);
 	console.log(__dirname);
+});
+server.on("error", function(err) {
+	console.log(err);
 });
